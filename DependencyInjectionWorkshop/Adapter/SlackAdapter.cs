@@ -2,12 +2,12 @@
 
 namespace DependencyInjectionWorkshop.Adapter
 {
-    public interface INotify
+    public interface INotification
     {
         void PushMessage(string myMessage);
     }
 
-    public class SlackAdapter : INotify
+    public class SlackAdapter : INotification
     {
         public void PushMessage(string myMessage)
         {

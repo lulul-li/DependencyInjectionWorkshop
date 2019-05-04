@@ -6,29 +6,29 @@ namespace DependencyInjectionWorkshop.Models
     {
         private readonly IProfile _profile;
         private readonly IFailedCounter _failedCounter;
-        private readonly IHash _sha256Adapter;
+        private readonly IHash _hash;
         private readonly IOtpService _otpService;
-        private readonly ILog _nLogAdapter;
-        private readonly INotify _slackAdapter;
-
-        public AuthenticationService(IProfile profile, IFailedCounter failedCounter, IHash sha256Adapter, IOtpService otpService, ILog nLogAdapter, INotify slackAdapter)
+        private readonly ILogger _logger;
+        private readonly INotification _notification;
+        
+        public AuthenticationService(IProfile profile, IFailedCounter failedCounter, IHash hash, IOtpService otpService, ILogger logger, INotification notification)
         {
             _profile = profile;
             _failedCounter = failedCounter;
-            _sha256Adapter = sha256Adapter;
+            _hash = hash;
             _otpService = otpService;
-            _nLogAdapter = nLogAdapter;
-            _slackAdapter = slackAdapter;
+            _logger = logger;
+            _notification = notification;
         }
 
         public AuthenticationService()
         {
             _profile = new Profile();
             _failedCounter = new FailedCounter();
-            _sha256Adapter = new SHA256Adapter();
+            _hash = new SHA256Adapter();
             _otpService = new OtpService();
-            _nLogAdapter = new NLogAdapter();
-            _slackAdapter = new SlackAdapter();
+            _logger = new NLoggerAdapter();
+            _notification = new SlackAdapter();
         }
 
         public bool Verify(string accountId, string password, string otp)
@@ -37,7 +37,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var dbPassword = _profile.GetPassword(accountId);
 
-            var hashPassword = _sha256Adapter.GetHash(password);
+            var hashPassword = _hash.GetHash(password);
 
             var currentOtp = _otpService.GetCurrentOtp(accountId);
 
@@ -53,9 +53,9 @@ namespace DependencyInjectionWorkshop.Models
 
                 var failedCount = _failedCounter.Get(accountId);
 
-                _nLogAdapter.Info($"verify failed account : {accountId} ,failed count {failedCount}");
+                _logger.Info($"verify failed account : {accountId} ,failed count {failedCount}");
 
-                _slackAdapter.PushMessage("my message");
+                _notification.PushMessage("my message");
 
                 return false;
             }
