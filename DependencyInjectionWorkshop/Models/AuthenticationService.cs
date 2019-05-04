@@ -1,4 +1,6 @@
-﻿namespace DependencyInjectionWorkshop.Models
+﻿using DependencyInjectionWorkshop.Adapter;
+
+namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
@@ -27,9 +29,9 @@
             }
             else
             {
-                _failedCounter.AddFailedCounter(accountId);
+                _failedCounter.Add(accountId);
 
-                var failedCount = _failedCounter.GetFailedCount(accountId);
+                var failedCount = _failedCounter.Get(accountId);
 
                 _nLogAdapter.log($"verify failed account : {accountId} ,failed count {failedCount}");
 

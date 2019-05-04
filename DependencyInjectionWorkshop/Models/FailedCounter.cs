@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using DependencyInjectionWorkshop.Exception;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -11,13 +12,13 @@ namespace DependencyInjectionWorkshop.Models
             resetResp.EnsureSuccessStatusCode();
         }
 
-        public void AddFailedCounter(string accountId)
+        public void Add(string accountId)
         {
             var addFailedCounterResp = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
             addFailedCounterResp.EnsureSuccessStatusCode();
         }
 
-        public int GetFailedCount(string accountId)
+        public int Get(string accountId)
         {
             var failedCounterResp = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }.PostAsJsonAsync("api/failedCounter/Get", accountId).Result;
             failedCounterResp.EnsureSuccessStatusCode();

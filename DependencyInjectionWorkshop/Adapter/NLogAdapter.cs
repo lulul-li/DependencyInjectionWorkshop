@@ -1,6 +1,6 @@
 ﻿using NLog;
 
-namespace DependencyInjectionWorkshop.Models
+namespace DependencyInjectionWorkshop.Adapter
 {
     public class NLogAdapter
     {
