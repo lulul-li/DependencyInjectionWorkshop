@@ -1,7 +1,6 @@
 ﻿using DependencyInjectionWorkshop.Adapter;
 using DependencyInjectionWorkshop.Models;
 using NSubstitute;
-using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
 
 namespace DependencyInjectionWorkshopTests
@@ -37,11 +36,7 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void is_valid()
         {
-            GivenPassword(DefaultAccountId, DefaultHashPassword);
-            GivenHashPassword(DefaultPassword, DefaultHashPassword);
-            GivenOtp(DefaultAccountId, DefaultOtp);
-
-            var isVerify = WhenVerify(DefaultAccountId, DefaultPassword, DefaultOtp);
+            var isVerify = WhenValid();
             ShouldBeValid(isVerify);
         }
 
@@ -82,9 +77,33 @@ namespace DependencyInjectionWorkshopTests
             LogShouldContains(DefaultAccountId, FailedCount);
         }
 
+        [Test]
+        public void reset_failed_count_when_valid()
+        {
+            WhenValid();
+            _failedCounter.Received(1).Reset(Arg.Any<string>());
+        }
+
+        [Test]
+        public void add_failed_count_when_invalid()
+        {
+            WhenInvalid();
+            _failedCounter.Received(1).Add(Arg.Any<string>());
+        }
+
         private static void ShouldBeValid(bool isVerify)
         {
             Assert.IsTrue(isVerify);
+        }
+
+        private bool WhenValid()
+        {
+            GivenPassword(DefaultAccountId, DefaultHashPassword);
+            GivenHashPassword(DefaultPassword, DefaultHashPassword);
+            GivenOtp(DefaultAccountId, DefaultOtp);
+
+            var isVerify = WhenVerify(DefaultAccountId, DefaultPassword, DefaultOtp);
+            return isVerify;
         }
 
         private void GivenFailedCount(string accountId, int failedCount)
