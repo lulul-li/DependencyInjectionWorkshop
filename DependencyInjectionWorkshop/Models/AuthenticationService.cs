@@ -7,28 +7,18 @@ namespace DependencyInjectionWorkshop.Models
         private readonly IProfile _profile;
         private readonly IFailedCounter _failedCounter;
         private readonly IHash _hash;
-        private readonly IOtpService _otpService;
+        private readonly IOtp _otp;
         private readonly ILogger _logger;
         private readonly INotification _notification;
         
-        public AuthenticationService(IProfile profile, IFailedCounter failedCounter, IHash hash, IOtpService otpService, ILogger logger, INotification notification)
+        public AuthenticationService(IProfile profile, IFailedCounter failedCounter, IHash hash, IOtp otp, ILogger logger, INotification notification)
         {
             _profile = profile;
             _failedCounter = failedCounter;
             _hash = hash;
-            _otpService = otpService;
+            _otp = otp;
             _logger = logger;
             _notification = notification;
-        }
-
-        public AuthenticationService()
-        {
-            _profile = new Profile();
-            _failedCounter = new FailedCounter();
-            _hash = new SHA256Adapter();
-            _otpService = new OtpService();
-            _logger = new NLoggerAdapter();
-            _notification = new SlackAdapter();
         }
 
         public bool Verify(string accountId, string password, string otp)
@@ -39,7 +29,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashPassword = _hash.GetHash(password);
 
-            var currentOtp = _otpService.GetCurrentOtp(accountId);
+            var currentOtp = _otp.GetCurrentOtp(accountId);
 
             if (hashPassword.ToString() == dbPassword && currentOtp == otp)
             {

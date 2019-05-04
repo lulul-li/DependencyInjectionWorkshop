@@ -5,12 +5,12 @@ namespace DependencyInjectionWorkshop.Adapter
 {
     public interface IHash
     {
-        StringBuilder GetHash(string paintText);
+        string GetHash(string paintText);
     }
 
     public class SHA256Adapter : IHash
     {
-        public StringBuilder GetHash(string paintText)
+        public string GetHash(string paintText)
         {
             var hashPassword = new StringBuilder();
             var crypto = new SHA256Managed().ComputeHash(Encoding.UTF8.GetBytes(paintText));
@@ -19,7 +19,7 @@ namespace DependencyInjectionWorkshop.Adapter
                 hashPassword.Append(theByte.ToString("x2"));
             }
 
-            return hashPassword;
+            return hashPassword.ToString();
         }
     }
 }
