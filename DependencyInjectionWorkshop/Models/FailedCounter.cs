@@ -4,9 +4,17 @@ using DependencyInjectionWorkshop.Exception;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class FailedCounter
+    public interface IFailedCounter
     {
-        public void ResetFailedCounter(string accountId)
+        void Reset(string accountId);
+        void Add(string accountId);
+        int Get(string accountId);
+        void CheckAccountIsLock(string accountId);
+    }
+
+    public class FailedCounter : IFailedCounter
+    {
+        public void Reset(string accountId)
         {
             var resetResp = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
             resetResp.EnsureSuccessStatusCode();

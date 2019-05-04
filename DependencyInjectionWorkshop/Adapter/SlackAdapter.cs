@@ -2,9 +2,14 @@
 
 namespace DependencyInjectionWorkshop.Adapter
 {
-    public class SlackAdapter
+    public interface INotify
     {
-        public void Notify(string myMessage)
+        void PushMessage(string myMessage);
+    }
+
+    public class SlackAdapter : INotify
+    {
+        public void PushMessage(string myMessage)
         {
             var slackClient = new SlackClient("my api token");
             slackClient.PostMessage(resp => { }, "my channel", myMessage, "my bot name");
