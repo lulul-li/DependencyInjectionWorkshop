@@ -17,10 +17,10 @@ namespace DependencyInjectionWorkshop.Models
             var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
             var isLockResp = httpClient.PostAsJsonAsync("api/failedCounter/IsLock", accountId).Result;
             isLockResp.EnsureSuccessStatusCode();
-
-            if (!isLockResp.IsSuccessStatusCode)
+            
+            if (!isLockResp.Content.ReadAsAsync<bool>().Result)
             {
-                throw new Exception($"account is lock, accountId:{accountId}");
+                throw new FailedTooManyTimesException();
 
             }
 
@@ -42,8 +42,8 @@ namespace DependencyInjectionWorkshop.Models
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception($"web api error, accountId:{accountId}");
-
             }
+
             var currentOtp = response.Content.ReadAsAsync<string>().Result;
 
             if (hashPassword.ToString() == dbPassword && currentOtp == otp)
@@ -63,5 +63,10 @@ namespace DependencyInjectionWorkshop.Models
                 return false;
             }
         }
+    }
+
+    public class FailedTooManyTimesException : Exception
+    {
+        
     }
 }
