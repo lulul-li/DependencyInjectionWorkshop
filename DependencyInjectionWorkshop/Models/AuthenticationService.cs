@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using Dapper;
 using SlackAPI;
@@ -13,6 +14,16 @@ namespace DependencyInjectionWorkshop.Models
     {
         public bool Verify(string accountId, string password, string otp)
         {
+            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
+            var isLockResp = httpClient.PostAsJsonAsync("api/failedCounter/IsLock", accountId).Result;
+            isLockResp.EnsureSuccessStatusCode();
+
+            if (!isLockResp.IsSuccessStatusCode)
+            {
+                throw new Exception($"account is lock, accountId:{accountId}");
+
+            }
+
             string dbPassword;
             using (var connection = new SqlConnection("my connection string"))
             {
@@ -20,16 +31,13 @@ namespace DependencyInjectionWorkshop.Models
                     commandType: CommandType.StoredProcedure).SingleOrDefault();
             }
 
-            var crypt = new System.Security.Cryptography.SHA256Managed();
             var hashPassword = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password));
+            var crypto = new SHA256Managed().ComputeHash(Encoding.UTF8.GetBytes(password));
             foreach (var theByte in crypto)
             {
                 hashPassword.Append(theByte.ToString("x2"));
             }
 
-
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
             var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
             if (!response.IsSuccessStatusCode)
             {
@@ -40,12 +48,18 @@ namespace DependencyInjectionWorkshop.Models
 
             if (hashPassword.ToString() == dbPassword && currentOtp == otp)
             {
+                var resetResp = httpClient.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
+                resetResp.EnsureSuccessStatusCode();
+
                 return true;
             }
             else
             {
+                var addFailedCounterResp = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
+                addFailedCounterResp.EnsureSuccessStatusCode();
+
                 var slackClient = new SlackClient("my api token");
-                slackClient.PostMessage(response1 => { }, "my channel", "my message", "my bot name");
+                slackClient.PostMessage(resp => { }, "my channel", "my message", "my bot name");
                 return false;
             }
         }
