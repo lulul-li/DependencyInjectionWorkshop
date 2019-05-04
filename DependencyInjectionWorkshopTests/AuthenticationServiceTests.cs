@@ -1,7 +1,6 @@
 ﻿using DependencyInjectionWorkshop.Adapter;
 using DependencyInjectionWorkshop.Models;
 using NSubstitute;
-using NSubstitute.Core;
 using NSubstitute.ReceivedExtensions;
 using NUnit.Framework;
 
@@ -10,18 +9,18 @@ namespace DependencyInjectionWorkshopTests
     [TestFixture]
     public class AuthenticationServiceTests
     {
+        private const string DefaultAccountId = "lulu";
+        private const string DefaultHashPassword = "hash password";
+        private const string DefaultOtp = "123456";
+        private const string DefaultPassword = "ps";
+        private const int FailedCount = 22;
         private AuthenticationService _authenticationService;
-        private string _defaultAccountId = "lulu";
-        private string _defaultHashPassword = "hash password";
-        private string _defaultOtp = "123456";
-        private string _defaultPassword = "ps";
         private IFailedCounter _failedCounter;
         private IHash _hash;
         private ILogger _logger;
         private INotification _notification;
         private IOtp _otpService;
         private IProfile _profile;
-        private int _failedCount = 22;
 
         [SetUp]
         public void SetUp()
@@ -38,25 +37,34 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void is_valid()
         {
-            GivenPassword(_defaultAccountId, _defaultHashPassword);
-            GivenHashPassword(_defaultPassword, _defaultHashPassword);
-            GivenOtp(_defaultAccountId, _defaultOtp);
+            GivenPassword(DefaultAccountId, DefaultHashPassword);
+            GivenHashPassword(DefaultPassword, DefaultHashPassword);
+            GivenOtp(DefaultAccountId, DefaultOtp);
 
-            var isVerify = WhenVerify(_defaultAccountId, _defaultPassword, _defaultOtp);
+            var isVerify = WhenVerify(DefaultAccountId, DefaultPassword, DefaultOtp);
             ShouldBeValid(isVerify);
         }
-
 
         [Test]
         public void is_invalid_when_opt_wrong()
         {
-            GivenPassword(_defaultAccountId, _defaultHashPassword);
-            GivenHashPassword(_defaultPassword, _defaultHashPassword);
-            GivenOtp(_defaultAccountId, _defaultOtp);
+            GivenPassword(DefaultAccountId, DefaultHashPassword);
+            GivenHashPassword(DefaultPassword, DefaultHashPassword);
+            GivenOtp(DefaultAccountId, DefaultOtp);
 
-            var isVerify = WhenVerify(_defaultAccountId, _defaultPassword, "wrong otp");
+            var isVerify = WhenVerify(DefaultAccountId, DefaultPassword, "wrong otp");
             ShouldBeInvalid(isVerify);
+        }
 
+        [Test]
+        public void is_invalid_when_password_wrong()
+        {
+            GivenPassword(DefaultAccountId, DefaultHashPassword);
+            GivenHashPassword("wrong password", "wrong hash password");
+            GivenOtp(DefaultAccountId, DefaultOtp);
+
+            var isVerify = WhenVerify(DefaultAccountId, "wrong password", DefaultOtp);
+            ShouldBeInvalid(isVerify);
         }
 
         [Test]
@@ -69,14 +77,19 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void logger_account_failed_count_when_invalid()
         {
-            GivenFailedCount(_defaultAccountId, _failedCount);
+            GivenFailedCount(DefaultAccountId, FailedCount);
             WhenInvalid();
-            LogShouldContains(_defaultAccountId, _failedCount);
+            LogShouldContains(DefaultAccountId, FailedCount);
+        }
+
+        private static void ShouldBeValid(bool isVerify)
+        {
+            Assert.IsTrue(isVerify);
         }
 
         private void GivenFailedCount(string accountId, int failedCount)
         {
-             _failedCounter.Get(accountId).ReturnsForAnyArgs(failedCount);
+            _failedCounter.Get(accountId).ReturnsForAnyArgs(failedCount);
         }
 
         private void LogShouldContains(string accountId, int failedCount)
@@ -91,21 +104,15 @@ namespace DependencyInjectionWorkshopTests
 
         private bool WhenInvalid()
         {
-            GivenPassword(_defaultAccountId, _defaultHashPassword);
-            GivenHashPassword(_defaultPassword, _defaultHashPassword);
-            GivenOtp(_defaultAccountId, _defaultOtp);
-            var isVerify = WhenVerify(_defaultAccountId, _defaultPassword, "wrong otp");
-            return isVerify;
+            GivenPassword(DefaultAccountId, DefaultHashPassword);
+            GivenHashPassword(DefaultPassword, DefaultHashPassword);
+            GivenOtp(DefaultAccountId, DefaultOtp);
+            return WhenVerify(DefaultAccountId, DefaultPassword, "wrong otp");
         }
 
         private void ShouldBeInvalid(bool isVerify)
         {
             Assert.IsFalse(isVerify);
-        }
-
-        private static void ShouldBeValid(bool isVerify)
-        {
-            Assert.IsTrue(isVerify);
         }
 
         private bool WhenVerify(string accountId, string password, string otp)
