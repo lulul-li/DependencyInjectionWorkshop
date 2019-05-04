@@ -1,4 +1,6 @@
-﻿using DependencyInjectionWorkshop.Adapter;
+﻿using System;
+using DependencyInjectionWorkshop.Adapter;
+using DependencyInjectionWorkshop.Exception;
 using DependencyInjectionWorkshop.Models;
 using NSubstitute;
 using NUnit.Framework;
@@ -91,9 +93,28 @@ namespace DependencyInjectionWorkshopTests
             _failedCounter.Received(1).Add(Arg.Any<string>());
         }
 
+        [Test]
+        public void throw_failed_too_many_times_exception_when_account_lock()
+        {
+            GivenAccountIsLock(DefaultAccountId, true);
+
+            TestDelegate verify = () => _authenticationService.Verify(DefaultAccountId, DefaultPassword, DefaultOtp);
+            ShouldThrow<FailedTooManyTimesException>(verify);
+        }
+
+        private static TResult ShouldThrow<TResult>(TestDelegate verify) where TResult : Exception
+        {
+            return Assert.Throws<TResult>(verify);
+        }
+
         private static void ShouldBeValid(bool isVerify)
         {
             Assert.IsTrue(isVerify);
+        }
+
+        private void GivenAccountIsLock(string accountId, bool isLock)
+        {
+            _failedCounter.CheckAccountIsLock(accountId).ReturnsForAnyArgs(isLock);
         }
 
         private bool WhenValid()

@@ -1,4 +1,5 @@
 ﻿using DependencyInjectionWorkshop.Adapter;
+using DependencyInjectionWorkshop.Exception;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -10,7 +11,7 @@ namespace DependencyInjectionWorkshop.Models
         private readonly IOtp _otp;
         private readonly ILogger _logger;
         private readonly INotification _notification;
-        
+
         public AuthenticationService(IProfile profile, IFailedCounter failedCounter, IHash hash, IOtp otp, ILogger logger, INotification notification)
         {
             _profile = profile;
@@ -23,7 +24,11 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool Verify(string accountId, string password, string otp)
         {
-            _failedCounter.CheckAccountIsLock(accountId);
+            var isLock = _failedCounter.CheckAccountIsLock(accountId);
+            if (isLock)
+            {
+                throw new FailedTooManyTimesException();
+            }
 
             var dbPassword = _profile.GetPassword(accountId);
 
