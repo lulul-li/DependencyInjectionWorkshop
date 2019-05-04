@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using Dapper;
+using NLog;
 using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
@@ -21,7 +22,6 @@ namespace DependencyInjectionWorkshop.Models
             if (!isLockResp.Content.ReadAsAsync<bool>().Result)
             {
                 throw new FailedTooManyTimesException();
-
             }
 
             string dbPassword;
@@ -58,8 +58,15 @@ namespace DependencyInjectionWorkshop.Models
                 var addFailedCounterResp = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
                 addFailedCounterResp.EnsureSuccessStatusCode();
 
+                var failedCounterResp = httpClient.PostAsJsonAsync("api/failedCounter/Get", accountId).Result;
+                failedCounterResp.EnsureSuccessStatusCode();
+
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Info($"verify failed account : {accountId} ,failed count {failedCounterResp.Content.ReadAsAsync<int>().Result}");
+
                 var slackClient = new SlackClient("my api token");
                 slackClient.PostMessage(resp => { }, "my channel", "my message", "my bot name");
+
                 return false;
             }
         }
