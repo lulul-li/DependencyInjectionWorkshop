@@ -15,22 +15,79 @@ namespace DependencyInjectionWorkshop.Models
     {
         public bool Verify(string accountId, string password, string otp)
         {
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
-            var isLockResp = httpClient.PostAsJsonAsync("api/failedCounter/IsLock", accountId).Result;
-            isLockResp.EnsureSuccessStatusCode();
-            
-            if (!isLockResp.Content.ReadAsAsync<bool>().Result)
+            CheckAccountIsLock(accountId);
+
+            var dbPassword = GetDbPassword(accountId);
+
+            var hashPassword = GetHashPassword(password);
+
+            var currentOtp = GetCurrentOtp(accountId);
+
+            if (hashPassword.ToString() == dbPassword && currentOtp == otp)
             {
-                throw new FailedTooManyTimesException();
+                ResetFailedCounter(accountId);
+
+                return true;
+            }
+            else
+            {
+                AddFailedCounter(accountId);
+
+                var failedCount = GetFailedCount(accountId);
+
+                log($"verify failed account : {accountId} ,failed count {failedCount}");
+
+                Notify("my message");
+
+                return false;
+            }
+        }
+
+        private static int GetFailedCount(string accountId)
+        {
+            var failedCounterResp = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }.PostAsJsonAsync("api/failedCounter/Get", accountId).Result;
+            failedCounterResp.EnsureSuccessStatusCode();
+            return failedCounterResp.Content.ReadAsAsync<int>().Result;
+        }
+
+        private static void Notify(string myMessage)
+        {
+            var slackClient = new SlackClient("my api token");
+            slackClient.PostMessage(resp => { }, "my channel", myMessage, "my bot name");
+        }
+
+        private static void log(string message)
+        {
+            var logger = LogManager.GetCurrentClassLogger();
+            logger.Info(
+                message);
+        }
+
+        private static void AddFailedCounter(string accountId)
+        {
+            var addFailedCounterResp = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
+            addFailedCounterResp.EnsureSuccessStatusCode();
+        }
+
+        private static void ResetFailedCounter(string accountId)
+        {
+            var resetResp = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
+            resetResp.EnsureSuccessStatusCode();
+        }
+
+        private static string GetCurrentOtp(string accountId)
+        {
+            var response = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }.PostAsJsonAsync("api/otps", accountId).Result;
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"web api error, accountId:{accountId}");
             }
 
-            string dbPassword;
-            using (var connection = new SqlConnection("my connection string"))
-            {
-                dbPassword = connection.Query<string>("spGetUserPassword", new { Id = accountId },
-                    commandType: CommandType.StoredProcedure).SingleOrDefault();
-            }
+            return response.Content.ReadAsAsync<string>().Result;
+        }
 
+        private static StringBuilder GetHashPassword(string password)
+        {
             var hashPassword = new StringBuilder();
             var crypto = new SHA256Managed().ComputeHash(Encoding.UTF8.GetBytes(password));
             foreach (var theByte in crypto)
@@ -38,42 +95,35 @@ namespace DependencyInjectionWorkshop.Models
                 hashPassword.Append(theByte.ToString("x2"));
             }
 
-            var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
-            if (!response.IsSuccessStatusCode)
+            return hashPassword;
+        }
+
+        private static string GetDbPassword(string accountId)
+        {
+            string dbPassword;
+            using (var connection = new SqlConnection("my connection string"))
             {
-                throw new Exception($"web api error, accountId:{accountId}");
+                dbPassword = connection.Query<string>("spGetUserPassword", new {Id = accountId},
+                    commandType: CommandType.StoredProcedure).SingleOrDefault();
             }
 
-            var currentOtp = response.Content.ReadAsAsync<string>().Result;
+            return dbPassword;
+        }
 
-            if (hashPassword.ToString() == dbPassword && currentOtp == otp)
+        private static void CheckAccountIsLock(string accountId)
+        {
+            var isLockResp = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }.PostAsJsonAsync("api/failedCounter/IsLock", accountId).Result;
+            isLockResp.EnsureSuccessStatusCode();
+
+            if (!isLockResp.Content.ReadAsAsync<bool>().Result)
             {
-                var resetResp = httpClient.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
-                resetResp.EnsureSuccessStatusCode();
-
-                return true;
-            }
-            else
-            {
-                var addFailedCounterResp = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
-                addFailedCounterResp.EnsureSuccessStatusCode();
-
-                var failedCounterResp = httpClient.PostAsJsonAsync("api/failedCounter/Get", accountId).Result;
-                failedCounterResp.EnsureSuccessStatusCode();
-
-                var logger = LogManager.GetCurrentClassLogger();
-                logger.Info($"verify failed account : {accountId} ,failed count {failedCounterResp.Content.ReadAsAsync<int>().Result}");
-
-                var slackClient = new SlackClient("my api token");
-                slackClient.PostMessage(resp => { }, "my channel", "my message", "my bot name");
-
-                return false;
+                throw new FailedTooManyTimesException();
             }
         }
     }
 
     public class FailedTooManyTimesException : Exception
     {
-        
+
     }
 }
