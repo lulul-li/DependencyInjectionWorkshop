@@ -1,12 +1,9 @@
-﻿using System;
-using System.Net.Http;
-
-namespace DependencyInjectionWorkshop.Models
+﻿namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
         private readonly Profile _profile = new Profile();
-        private readonly Sha256Adapter _sha256Adapter = new Sha256Adapter();
+        private readonly SHA256Adapter _sha256Adapter = new SHA256Adapter();
         private readonly OtpService _otpService = new OtpService();
         private readonly FailedCounter _failedCounter = new FailedCounter();
         private readonly NLogAdapter _nLogAdapter = new NLogAdapter();
@@ -41,10 +38,5 @@ namespace DependencyInjectionWorkshop.Models
                 return false;
             }
         }
-    }
-
-    public class FailedTooManyTimesException : Exception
-    {
-
     }
 }
