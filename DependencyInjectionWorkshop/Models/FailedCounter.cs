@@ -4,15 +4,6 @@ using DependencyInjectionWorkshop.Exception;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public interface IFailedCounter
-    {
-        void Reset(string accountId);
-        void Add(string accountId);
-        int Get(string accountId);
-        bool CheckAccountIsLock(string accountId);
-        void Update(string accountId);
-    }
-
     public class FailedCounter : IFailedCounter
     {
         public void Reset(string accountId)

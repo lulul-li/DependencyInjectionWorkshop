@@ -1,6 +1,7 @@
 ﻿using DependencyInjectionWorkshop.Exception;
+using DependencyInjectionWorkshop.Models;
 
-namespace DependencyInjectionWorkshop.Models
+namespace DependencyInjectionWorkshop.Decorate
 {
     public class FailedCounterDecorator : BaseAuthenticateDecorator
     {

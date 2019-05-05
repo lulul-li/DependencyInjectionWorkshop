@@ -1,5 +1,6 @@
 ﻿using System;
 using DependencyInjectionWorkshop.Adapter;
+using DependencyInjectionWorkshop.Decorate;
 using DependencyInjectionWorkshop.Exception;
 using DependencyInjectionWorkshop.Models;
 using NSubstitute;
