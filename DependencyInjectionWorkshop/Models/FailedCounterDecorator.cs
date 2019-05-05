@@ -25,7 +25,18 @@ namespace DependencyInjectionWorkshop.Models
         public bool Verify(string accountId, string password, string otp)
         {
             CheckAccountIsLock(accountId);
-            return _authentication.Verify(accountId, password, otp);
+            var isVerify = _authentication.Verify(accountId, password, otp);
+            if (isVerify)
+            {
+                Reset(accountId);
+            }
+
+            return isVerify;
+        }
+
+        public void Reset(string accountId)
+        {
+            _failedCounter.Reset(accountId);
         }
     }
 }

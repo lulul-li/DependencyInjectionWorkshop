@@ -30,8 +30,6 @@ namespace DependencyInjectionWorkshop.Models
 
             if (hashPassword == dbPassword && currentOtp == otp)
             {
-                _failedCounter.Reset(accountId);
-
                 return true;
             }
             else
