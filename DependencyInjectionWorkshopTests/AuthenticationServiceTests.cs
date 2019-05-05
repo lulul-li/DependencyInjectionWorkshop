@@ -15,7 +15,7 @@ namespace DependencyInjectionWorkshopTests
         private const string DefaultOtp = "123456";
         private const string DefaultPassword = "ps";
         private const int FailedCount = 22;
-        private AuthenticationService _authenticationService;
+        private IAuthentication _authenticationService;
         private IFailedCounter _failedCounter;
         private IHash _hash;
         private ILogger _logger;
@@ -32,7 +32,10 @@ namespace DependencyInjectionWorkshopTests
             _failedCounter = Substitute.For<IFailedCounter>();
             _logger = Substitute.For<ILogger>();
             _hash = Substitute.For<IHash>();
-            _authenticationService = new AuthenticationService(_profile, _failedCounter, _hash, _otpService, _logger, _notification);
+            var authenticationService = new AuthenticationService(_profile, _failedCounter, _hash, _otpService, _logger);
+            var failedCounterDecorator = new FailedCounterDecorator(authenticationService, _failedCounter);
+            _authenticationService = new NotifyDecorator(failedCounterDecorator, _notification);
+
         }
 
         [Test]
