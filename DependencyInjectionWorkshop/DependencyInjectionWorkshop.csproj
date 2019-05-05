@@ -83,6 +83,7 @@
     <Compile Include="Models\FailedCounter.cs" />
     <Compile Include="Models\FailedCounterDecorator.cs" />
     <Compile Include="Models\IAuthentication.cs" />
+    <Compile Include="Models\LogDecorate.cs" />
     <Compile Include="Models\NotifyDecorator.cs" />
     <Compile Include="Models\OtpService.cs" />
     <Compile Include="Models\Profile.cs" />

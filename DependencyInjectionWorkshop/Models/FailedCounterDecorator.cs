@@ -30,6 +30,10 @@ namespace DependencyInjectionWorkshop.Models
             {
                 Reset(accountId);
             }
+            else
+            {
+                Add(accountId);
+            }
 
             return isVerify;
         }
@@ -37,6 +41,11 @@ namespace DependencyInjectionWorkshop.Models
         public void Reset(string accountId)
         {
             _failedCounter.Reset(accountId);
+        }
+
+        public void Add(string accountId)
+        {
+            _failedCounter.Add(accountId);
         }
     }
 }
