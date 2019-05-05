@@ -23,7 +23,6 @@ namespace DependencyInjectionWorkshop.Models
             var hashPassword = _hash.GetHash(password);
 
             var currentOtp = _otp.GetCurrentOtp(accountId);
-
             return hashPassword == dbPassword && currentOtp == otp;
         }
     }

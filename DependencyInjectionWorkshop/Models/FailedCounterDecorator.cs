@@ -13,15 +13,6 @@ namespace DependencyInjectionWorkshop.Models
             _failedCounter = failedCounter;
         }
 
-        public void CheckAccountIsLock(string accountId)
-        {
-            var isLock = _failedCounter.CheckAccountIsLock(accountId);
-            if (isLock)
-            {
-                throw new FailedTooManyTimesException();
-            }
-        }
-
         public override bool Verify(string accountId, string password, string otp)
         {
             CheckAccountIsLock(accountId);
@@ -38,14 +29,28 @@ namespace DependencyInjectionWorkshop.Models
             return isVerify;
         }
 
-        public void Reset(string accountId)
+        private void CheckAccountIsLock(string accountId)
+        {
+            var isLock = _failedCounter.CheckAccountIsLock(accountId);
+            if (isLock)
+            {
+                throw new FailedTooManyTimesException();
+            }
+        }
+
+        private void Reset(string accountId)
         {
             _failedCounter.Reset(accountId);
         }
 
-        public void Add(string accountId)
+        private void Add(string accountId)
         {
             _failedCounter.Add(accountId);
+        }
+
+        public  void Update(string accountId)
+        {
+            _failedCounter.Update(accountId);
         }
     }
 }

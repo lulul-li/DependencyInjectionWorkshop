@@ -10,6 +10,7 @@ namespace DependencyInjectionWorkshop.Models
         void Add(string accountId);
         int Get(string accountId);
         bool CheckAccountIsLock(string accountId);
+        void Update(string accountId);
     }
 
     public class FailedCounter : IFailedCounter
@@ -41,6 +42,12 @@ namespace DependencyInjectionWorkshop.Models
 
             return isLockResp.Content.ReadAsAsync<bool>().Result;
             
+        }
+
+        public void Update(string accountId)
+        {
+            
+
         }
     }
 }
