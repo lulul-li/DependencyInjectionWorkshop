@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net.Http;
-using DependencyInjectionWorkshop.Exception;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -32,13 +31,10 @@ namespace DependencyInjectionWorkshop.Models
             isLockResp.EnsureSuccessStatusCode();
 
             return isLockResp.Content.ReadAsAsync<bool>().Result;
-            
         }
 
         public void Update(string accountId)
         {
-            
-
         }
     }
 }

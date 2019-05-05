@@ -75,6 +75,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapter\IHash.cs" />
+    <Compile Include="Adapter\ILogger.cs" />
+    <Compile Include="Adapter\INotification.cs" />
     <Compile Include="Adapter\NLogAdapter.cs" />
     <Compile Include="Adapter\SHA256Adapter.cs" />
     <Compile Include="Adapter\SlackAdapter.cs" />
@@ -87,6 +90,7 @@
     <Compile Include="Models\FailedCounter.cs" />
     <Compile Include="Models\IAuthentication.cs" />
     <Compile Include="Models\IFailedCounter.cs" />
+    <Compile Include="Models\IOtp.cs" />
     <Compile Include="Models\OtpService.cs" />
     <Compile Include="Models\Profile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

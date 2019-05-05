@@ -1,5 +1,4 @@
-﻿using System.Reflection.Emit;
-using DependencyInjectionWorkshop.Adapter;
+﻿using DependencyInjectionWorkshop.Adapter;
 
 namespace DependencyInjectionWorkshop.Models
 {

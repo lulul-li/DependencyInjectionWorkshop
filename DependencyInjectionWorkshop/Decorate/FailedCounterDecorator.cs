@@ -30,6 +30,11 @@ namespace DependencyInjectionWorkshop.Decorate
             return isVerify;
         }
 
+        public void Update(string accountId)
+        {
+            _failedCounter.Update(accountId);
+        }
+
         private void CheckAccountIsLock(string accountId)
         {
             var isLock = _failedCounter.CheckAccountIsLock(accountId);
@@ -47,11 +52,6 @@ namespace DependencyInjectionWorkshop.Decorate
         private void Add(string accountId)
         {
             _failedCounter.Add(accountId);
-        }
-
-        public  void Update(string accountId)
-        {
-            _failedCounter.Update(accountId);
         }
     }
 }

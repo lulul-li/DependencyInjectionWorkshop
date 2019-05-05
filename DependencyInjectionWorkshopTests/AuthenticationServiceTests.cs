@@ -35,7 +35,7 @@ namespace DependencyInjectionWorkshopTests
             _hash = Substitute.For<IHash>();
             var authenticationService = new AuthenticationService(_profile, _hash, _otpService);
             var failedCounterDecorator = new FailedCounterDecorator(authenticationService, _failedCounter);
-            var logDecorator = new LogDecorate(failedCounterDecorator,_failedCounter,_logger);
+            var logDecorator = new LogDecorate(failedCounterDecorator, _failedCounter, _logger);
             _authenticationService = new NotifyDecorator(logDecorator, _notification);
         }
 

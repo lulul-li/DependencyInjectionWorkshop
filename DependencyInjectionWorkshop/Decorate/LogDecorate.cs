@@ -24,6 +24,7 @@ namespace DependencyInjectionWorkshop.Decorate
                 var failedCount = _failedCounter.Get(accountId);
                 _logger.Info($"verify failed account : {accountId} ,failed count {failedCount}");
             }
+
             return isVerify;
         }
     }

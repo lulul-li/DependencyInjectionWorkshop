@@ -3,11 +3,6 @@ using System.Text;
 
 namespace DependencyInjectionWorkshop.Adapter
 {
-    public interface IHash
-    {
-        string GetHash(string paintText);
-    }
-
     public class SHA256Adapter : IHash
     {
         public string GetHash(string paintText)
